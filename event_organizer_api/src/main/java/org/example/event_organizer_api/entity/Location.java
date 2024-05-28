@@ -24,10 +24,4 @@ public class Location {
 
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
-
-    public Location(String name, String address, Integer capacity) {
-        this.name = name;
-        this.address = address;
-        this.capacity = capacity;
-    }
 }

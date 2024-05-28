@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -26,9 +26,11 @@ public class Event {
     private String eventType;
 
     @Column(name = "event_date", nullable = false)
-    private Instant eventDate;
+    private LocalDate eventDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private LocalTime eventTime;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
@@ -36,19 +38,11 @@ public class Event {
     private Integer ticketsAvailable;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    private Integer price;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "organizer_id", nullable = false)
     private User organizer;
 
-    public Event(String name, String eventType, Instant eventDate, Location location, Integer ticketsAvailable, BigDecimal price, User organizer) {
-        this.name = name;
-        this.eventType = eventType;
-        this.eventDate = eventDate;
-        this.location = location;
-        this.ticketsAvailable = ticketsAvailable;
-        this.price = price;
-        this.organizer = organizer;
-    }
+    private Boolean onSale;
 }

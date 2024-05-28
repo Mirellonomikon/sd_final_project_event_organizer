@@ -19,19 +19,15 @@ public class User {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "user_type", nullable = false, length = 50)
+    @Column(name = "user_type", nullable = false)
     private String userType;
 
-    public User(String username, String name, String password, String userType) {
-        this.username = username;
-        this.name = name;
-        this.password = password;
-        this.userType = userType;
-    }
+    @Column(name = "email", nullable = false)
+    private String email;
 }

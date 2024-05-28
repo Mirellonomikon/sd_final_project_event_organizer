@@ -14,8 +14,8 @@ public class EventDTO {
     private String name;
     private String eventType;
     private Instant eventDate;
-    private Integer locationId;
+    private String location;
     private Integer ticketsAvailable;
     private BigDecimal price;
-    private Integer organizerId;
+    private String organizer;
 }
