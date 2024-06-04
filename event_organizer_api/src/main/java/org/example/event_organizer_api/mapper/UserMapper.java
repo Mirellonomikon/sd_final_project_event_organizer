@@ -35,19 +35,11 @@ public class UserMapper implements GenericMapper<User, UserDTO>{
         return user;
     }
 
-    public User updateCredentialsDtoToEntity(UserUpdateCredentialsDTO dto) {
-        return modelMapper.map(dto, User.class);
-    }
-
-    public User signInDtoToEntity(UserSignInDTO dto) {
-        return modelMapper.map(dto, User.class);
-    }
-
     private String resolveUserType(String code) {
         return switch (code) {
-            case "admin" -> "Administrator";
-            case "org" -> "Organizer";
-            default -> "Client";
+            case "admin" -> "administrator";
+            case "org" -> "organizer";
+            default -> "client";
         };
     }
 }

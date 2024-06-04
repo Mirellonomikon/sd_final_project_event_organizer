@@ -1,12 +1,10 @@
 package org.example.event_organizer_api.mapper;
 
-import org.example.event_organizer_api.dto.event.EventDTO;
 import org.example.event_organizer_api.dto.location.LocationDTO;
 import org.example.event_organizer_api.dto.ticket.TicketDTO;
 import org.example.event_organizer_api.dto.user.UserDTO;
 import org.example.event_organizer_api.dto.user.UserSignUpDTO;
 import org.example.event_organizer_api.dto.user.UserUpdateCredentialsDTO;
-import org.example.event_organizer_api.entity.Event;
 import org.example.event_organizer_api.entity.Location;
 import org.example.event_organizer_api.entity.Ticket;
 import org.example.event_organizer_api.entity.User;
@@ -22,60 +20,57 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-        modelMapper.getConfiguration().setAmbiguityIgnored(true);
-
-        modelMapper.typeMap(Event.class, EventDTO.class).addMappings(mapper -> {
-            mapper.map(src -> src.getLocation().getId(), EventDTO::setLocationId);
-            mapper.map(src -> src.getOrganizer().getId(), EventDTO::setOrganizerId);
-        });
-
-        Converter<EventDTO, Event> eventDtoToEventConverter = context -> {
-            EventDTO source = context.getSource();
-            Event destination = new Event();
-            if (source != null) {
-                destination.setName(source.getName());
-                destination.setEventType(source.getEventType());
-                destination.setEventDate(source.getEventDate());
-                destination.setPrice(source.getPrice());
-                destination.setLocation(null);
-                destination.setOrganizer(null);
-            }
-            return destination;
-        };
-
-        modelMapper.createTypeMap(EventDTO.class, Event.class).setConverter(eventDtoToEventConverter);
-
-        modelMapper.typeMap(Ticket.class, TicketDTO.class).addMappings(mapper -> {
-            mapper.map(Ticket::getId, TicketDTO::setId);
-            mapper.map(src -> src.getUser().getId(), TicketDTO::setUserId);
-            mapper.map(src -> src.getEvent().getId(), TicketDTO::setEventId);
-        });
-
-        modelMapper.typeMap(LocationDTO.class, Location.class).addMappings(mapper -> {
-            mapper.skip(Location::setId);
-        });
-
-        modelMapper.typeMap(UserDTO.class, User.class).addMappings(mapper -> {
+        modelMapper.createTypeMap(UserDTO.class, User.class).addMappings(mapper -> {
             mapper.skip(User::setId);
+            mapper.skip(User::setWishlistEvents);
         });
 
-        modelMapper.typeMap(UserSignUpDTO.class, User.class).addMappings(mapper -> {
+        modelMapper.createTypeMap(UserSignUpDTO.class, User.class).addMappings(mapper -> {
             mapper.skip(User::setUserType);
             mapper.skip(User::setId);
+            mapper.skip(User::setWishlistEvents);
         });
+
+        modelMapper.getConfiguration().setAmbiguityIgnored(true);
 
         Converter<UserUpdateCredentialsDTO, User> userCredentialsUpdateConverter = context -> {
             UserUpdateCredentialsDTO source = context.getSource();
             User destination = new User();
             destination.setUsername(source.getUsername());
             destination.setName(source.getName());
+            destination.setEmail(source.getEmail());
             destination.setPassword(source.getNewPassword());
             return destination;
         };
 
         modelMapper.createTypeMap(UserUpdateCredentialsDTO.class, User.class)
+                .addMappings(mapper -> mapper.skip(User::setWishlistEvents))
                 .setConverter(userCredentialsUpdateConverter);
+
+        modelMapper.typeMap(LocationDTO.class, Location.class).addMappings(mapper -> {
+            mapper.skip(Location::setId);
+        });
+
+        modelMapper.typeMap(Ticket.class, TicketDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getUser().getId(), TicketDTO::setUserId);
+            mapper.map(src -> src.getEvent().getId(), TicketDTO::setEventId);
+        });
+
+        Converter<TicketDTO, Ticket> ticketDtoToTicketConverter = context -> {
+            TicketDTO source = context.getSource();
+            Ticket destination = new Ticket();
+            if (source != null) {
+                destination.setPurchasePrice(source.getPurchasePrice());
+                destination.setUser(null);
+                destination.setEvent(null);
+            }
+            return destination;
+        };
+
+        modelMapper.createTypeMap(TicketDTO.class, Ticket.class).setConverter(ticketDtoToTicketConverter);
 
         return modelMapper;
     }
 }
+
+

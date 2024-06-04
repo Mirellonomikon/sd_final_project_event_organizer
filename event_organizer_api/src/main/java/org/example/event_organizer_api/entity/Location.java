@@ -19,7 +19,7 @@ public class Location {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "address", nullable = false, length = Integer.MAX_VALUE)
+    @Column(name = "address", nullable = false)
     private String address;
 
     @Column(name = "capacity", nullable = false)

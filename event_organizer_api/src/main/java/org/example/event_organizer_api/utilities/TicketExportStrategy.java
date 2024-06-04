@@ -4,8 +4,7 @@ import org.example.event_organizer_api.entity.Ticket;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 
 public interface TicketExportStrategy {
-    void export(List<Ticket> matches, OutputStream outputStream) throws IOException;
+    void export(Ticket ticket, OutputStream outputStream) throws IOException;
 }

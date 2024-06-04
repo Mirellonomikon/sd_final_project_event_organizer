@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -18,11 +22,14 @@ public class Ticket {
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Event event;
 
-    private Integer purchasePrice;
+    @Column(name = "purchase_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal purchasePrice;
 }

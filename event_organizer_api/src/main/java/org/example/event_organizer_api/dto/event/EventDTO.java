@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -13,9 +14,11 @@ import java.time.Instant;
 public class EventDTO {
     private String name;
     private String eventType;
-    private Instant eventDate;
-    private String location;
+    private LocalDate eventDate;
+    private LocalTime eventTime;
+    private Integer location;
     private Integer ticketsAvailable;
     private BigDecimal price;
     private String organizer;
+    private Boolean onSale;
 }

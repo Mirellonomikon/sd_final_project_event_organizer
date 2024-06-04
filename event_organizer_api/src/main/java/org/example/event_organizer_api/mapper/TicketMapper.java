@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TicketMapper implements GenericMapper<Ticket, TicketDTO> {
-
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -18,7 +17,7 @@ public class TicketMapper implements GenericMapper<Ticket, TicketDTO> {
 
     @Override
     public Ticket toEntity(TicketDTO ticketDTO) {
-        throw new UnsupportedOperationException("Direct conversion from TicketDTO to Ticket is not supported.");
+        return modelMapper.map(ticketDTO, Ticket.class);
     }
 
     @Override

@@ -25,3 +25,4 @@ public class LocationMapper implements GenericMapper<Location, LocationDTO> {
         return modelMapper.map(location, LocationDTO.class);
     }
 }
+

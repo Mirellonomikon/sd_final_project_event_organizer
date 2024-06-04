@@ -12,4 +12,5 @@ public class UserUpdateCredentialsDTO {
     private String oldPassword;
     private String newPassword;
     private String name;
+    private String email;
 }
