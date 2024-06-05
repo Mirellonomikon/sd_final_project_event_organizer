@@ -1,10 +1,12 @@
 package org.example.event_organizer_api.mapper;
 
+import org.example.event_organizer_api.dto.event.EventDTO;
 import org.example.event_organizer_api.dto.location.LocationDTO;
 import org.example.event_organizer_api.dto.ticket.TicketDTO;
 import org.example.event_organizer_api.dto.user.UserDTO;
 import org.example.event_organizer_api.dto.user.UserSignUpDTO;
 import org.example.event_organizer_api.dto.user.UserUpdateCredentialsDTO;
+import org.example.event_organizer_api.entity.Event;
 import org.example.event_organizer_api.entity.Location;
 import org.example.event_organizer_api.entity.Ticket;
 import org.example.event_organizer_api.entity.User;
@@ -47,9 +49,7 @@ public class ModelMapperConfig {
                 .addMappings(mapper -> mapper.skip(User::setWishlistEvents))
                 .setConverter(userCredentialsUpdateConverter);
 
-        modelMapper.typeMap(LocationDTO.class, Location.class).addMappings(mapper -> {
-            mapper.skip(Location::setId);
-        });
+        modelMapper.typeMap(LocationDTO.class, Location.class).addMappings(mapper -> mapper.skip(Location::setId));
 
         modelMapper.typeMap(Ticket.class, TicketDTO.class).addMappings(mapper -> {
             mapper.map(src -> src.getUser().getId(), TicketDTO::setUserId);
@@ -68,6 +68,16 @@ public class ModelMapperConfig {
         };
 
         modelMapper.createTypeMap(TicketDTO.class, Ticket.class).setConverter(ticketDtoToTicketConverter);
+
+        modelMapper.typeMap(EventDTO.class, Event.class).addMappings(mapper -> {
+            mapper.skip(Event::setId);
+            mapper.skip(Event::setUsersWishlist);
+        });
+
+        modelMapper.typeMap(Event.class, EventDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getOrganizer().getId(), EventDTO::setOrganizer);
+            mapper.map(src -> src.getLocation().getId(), EventDTO::setLocation);
+        });
 
         return modelMapper;
     }

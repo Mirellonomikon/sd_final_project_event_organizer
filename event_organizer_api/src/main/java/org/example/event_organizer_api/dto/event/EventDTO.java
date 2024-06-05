@@ -19,6 +19,6 @@ public class EventDTO {
     private Integer location;
     private Integer ticketsAvailable;
     private BigDecimal price;
-    private String organizer;
-    private Boolean onSale;
+    private Integer organizer;
+    private Integer onSale;
 }
