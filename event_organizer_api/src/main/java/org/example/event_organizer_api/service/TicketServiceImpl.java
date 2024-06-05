@@ -8,9 +8,12 @@ import org.example.event_organizer_api.mapper.TicketMapper;
 import org.example.event_organizer_api.repository.EventRepository;
 import org.example.event_organizer_api.repository.TicketRepository;
 import org.example.event_organizer_api.repository.UserRepository;
+import org.example.event_organizer_api.utilities.TicketExportStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -82,6 +85,10 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ticket not found with ID: " + id));
 
+        Event event = ticket.getEvent();
+        event.setTicketsAvailable(event.getTicketsAvailable() + 1);
+        eventRepository.save(event);
+
         ticketRepository.delete(ticket);
     }
 
@@ -109,6 +116,11 @@ public class TicketServiceImpl implements TicketService {
                 .orElseThrow(() -> new NoSuchElementException("Event not found with ID: " + id));
 
         return ticketRepository.findByEvent(event);
+    }
+
+    @Override
+    public void exportTicket(Ticket ticket, OutputStream outputStream, TicketExportStrategy strategy) throws IOException {
+        strategy.export(ticket, outputStream);
     }
 }
 

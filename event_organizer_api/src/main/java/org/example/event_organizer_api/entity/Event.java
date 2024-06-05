@@ -52,8 +52,8 @@ public class Event {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User organizer;
 
-    @Column(name = "on_sale", nullable = false)
-    private Boolean onSale;
+    @Column(name = "on_sale", nullable = false, columnDefinition = "integer default 0 check(on_sale >= 0 and on_sale <= 100)")
+    private Integer onSale;
 
     @ManyToMany(mappedBy = "wishlistEvents")
     private Set<User> usersWishlist = new HashSet<>();
