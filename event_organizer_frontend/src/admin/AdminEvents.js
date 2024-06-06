@@ -106,9 +106,11 @@ const AdminEvents = () => {
         setIsAddFormOpen(true);
     };
 
-    const handleCloseAddForm = () => {
+    const handleCloseAddForm = (submitSuccessful) => {
         setIsAddFormOpen(false);
-        fetchEvents();
+        if (submitSuccessful) {
+            fetchEvents();
+        }
     };
 
     const handleOpenUpdateForm = (eventId) => {
@@ -116,9 +118,11 @@ const AdminEvents = () => {
         setIsUpdateFormOpen(true);
     };
 
-    const handleCloseUpdateForm = () => {
+    const handleCloseUpdateForm = (submitSuccessful) => {
         setIsUpdateFormOpen(false);
-        fetchEvents();
+        if (submitSuccessful) {
+            fetchEvents();
+        }
     };
 
     const handleChangeRowsPerPage = (event) => {
@@ -311,37 +315,58 @@ const AdminEvents = () => {
                                             <TableCell>{event.eventTime}</TableCell>
                                             <TableCell>{event.location.name}</TableCell>
                                             <TableCell>{event.ticketsAvailable}</TableCell>
-                                            <TableCell>{event.price}</TableCell>
+                                            <TableCell>{event.price} €</TableCell>
                                             <TableCell>{event.organizer.name}</TableCell>
-                                            <TableCell>{event.onSale}</TableCell>
+                                            <TableCell>{event.onSale} %</TableCell>
                                         </TableRow>
                                     ))}
                             </TableBody>
                         </Table>
                         <TablePagination
-                            rowsPerPageOptions={[10, 25, 50]}
                             component="div"
                             count={events.length}
-                            rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
                             onRowsPerPageChange={handleChangeRowsPerPage}
                         />
                     </TableContainer>
                 </ClickAwayListener>
             )}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-
-                <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2, marginLeft: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: 2,
+                }}
+            >
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleLogout}
+                >
                     Logout
                 </Button>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant="contained" color="primary" onClick={handleOpenAddForm} sx={{ marginTop: 2 }}>
-                        Add Event
-                    </Button>
-                </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleOpenAddForm}
+                >
+                    Add Event
+                </Button>
             </Box>
+
+            <AddEvent
+                open={isAddFormOpen}
+                handleClose={handleCloseAddForm}
+            />
+            <UpdateEvent
+                open={isUpdateFormOpen}
+                handleClose={handleCloseUpdateForm}
+                eventId={selectedEventId}
+            />
 
             <Dialog open={deleteConfirmationOpen} onClose={handleCancelDelete}>
                 <DialogTitle>Confirm Delete</DialogTitle>
@@ -352,18 +377,11 @@ const AdminEvents = () => {
                     <Button onClick={handleCancelDelete} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={handleDelete} color="secondary">
+                    <Button onClick={handleDelete} color="error">
                         Delete
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <AddEvent open={isAddFormOpen} onClose={handleCloseAddForm} />
-            <UpdateEvent
-                open={isUpdateFormOpen}
-                onClose={handleCloseUpdateForm}
-                eventId={selectedEventId}
-            />
         </Container>
     );
 };

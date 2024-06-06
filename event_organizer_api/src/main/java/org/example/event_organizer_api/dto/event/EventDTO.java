@@ -17,7 +17,6 @@ public class EventDTO {
     private LocalDate eventDate;
     private LocalTime eventTime;
     private Integer location;
-    private Integer ticketsAvailable;
     private BigDecimal price;
     private Integer organizer;
     private Integer onSale;

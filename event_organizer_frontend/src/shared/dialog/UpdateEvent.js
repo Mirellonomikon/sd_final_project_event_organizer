@@ -14,9 +14,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UpdateEvent = ({ open, onClose, eventId }) => {
+const UpdateEvent = ({ open, handleClose, eventId }) => {
     const [defaultEvent, setDefaultEvent] = useState(null);
     const [name, setName] = useState('');
+    const [eventType, setEventType] = useState('');
     const [eventDate, setEventDate] = useState('');
     const [eventTime, setEventTime] = useState('');
     const [location, setLocation] = useState('');
@@ -39,47 +40,87 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
                     });
                     const event = response.data;
                     setDefaultEvent(event);
-
                     setName(event.name);
+                    setEventType(event.eventType);
                     setEventDate(event.eventDate);
                     setEventTime(event.eventTime);
-                    setLocation(event.location.id);
-                    setOrganizer(event.organizer.id);
+                    setLocation(event.location.id); // Update to store location ID
+                    setOrganizer(event.organizer.id); // Update to store organizer ID
                     setTicketsAvailable(event.ticketsAvailable);
                     setPrice(event.price);
                     setOnSale(event.onSale);
-
-                    const fetchLocations = async () => {
-                        const response = await axios.get('http://localhost:8081/api/location/all', {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        setLocations(response.data);
-                    };
-
-                    const fetchOrganizers = async () => {
-                        const response = await axios.get('http://localhost:8081/api/user/role/organizer', {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        setOrganizers(response.data);
-                    };
-
-                    fetchLocations();
-                    fetchOrganizers();
                 } catch (err) {
                     setError(err.response?.data || 'Failed to fetch event details.');
                 }
             };
 
+            const fetchLocations = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8081/api/location/all', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setLocations(response.data);
+                } catch (err) {
+                    setError(err.response?.data || 'Failed to fetch locations.');
+                }
+            };
+
+            const fetchOrganizers = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8081/api/user/role/organizer', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setOrganizers(response.data);
+                } catch (err) {
+                    setError(err.response?.data || 'Failed to fetch organizers.');
+                }
+            };
+
             fetchEventDetails();
+            fetchLocations();
+            fetchOrganizers();
         } else {
-            setError('');
+            resetForm();
         }
     }, [open, eventId, token]);
 
-    const handleUpdate = async () => {
+    const resetForm = () => {
+        setDefaultEvent(null);
+        setName('');
+        setEventType('');
+        setEventDate('');
+        setEventTime('');
+        setLocation('');
+        setOrganizer('');
+        setTicketsAvailable('');
+        setPrice('');
+        setOnSale('');
+        setError('');
+    };
+
+    const handleLocationChange = async (locationId) => {
+        setLocation(locationId);
+        if (locationId && defaultEvent) {
+            try {
+                const response = await axios.get(`http://localhost:8081/api/location/${locationId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const capacity = response.data.capacity;
+                const ticketsSold = defaultEvent.ticketsAvailable - ticketsAvailable;
+                setTicketsAvailable(capacity - ticketsSold);
+            } catch (err) {
+                setError(err.response?.data || 'Failed to fetch location capacity.');
+            }
+        } else {
+            setTicketsAvailable('');
+        }
+    };
+
+    const handleSave = async () => {
         try {
             const eventDTO = {
                 name,
+                eventType,
                 eventDate,
                 eventTime,
                 location,
@@ -92,27 +133,14 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
             await axios.put(`http://localhost:8081/api/event/${eventId}`, eventDTO, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            onClose(true);
+            handleClose(true);
         } catch (err) {
             setError(err.response?.data || 'Failed to update event.');
         }
     };
 
-    const handleReset = () => {
-        if (defaultEvent) {
-            setName(defaultEvent.name);
-            setEventDate(defaultEvent.eventDate);
-            setEventTime(defaultEvent.eventTime);
-            setLocation(defaultEvent.location.id);
-            setOrganizer(defaultEvent.organizer.id);
-            setTicketsAvailable(defaultEvent.ticketsAvailable);
-            setPrice(defaultEvent.price);
-            setOnSale(defaultEvent.onSale);
-        }
-    };
-
     return (
-        <Dialog open={open} onClose={() => { onClose(false); handleReset(); }} sx={{ '& .MuiPaper-root': { backgroundColor: '#f1f8e9' } }}>
+        <Dialog open={open} onClose={() => handleClose(false)} sx={{ '& .MuiPaper-root': { backgroundColor: '#f1f8e9' } }}>
             <DialogTitle>Update Event</DialogTitle>
             <DialogContent>
                 {error && <Alert severity="error" style={{ backgroundColor: '#FFF6EA', marginBottom: "5px" }}>{error}</Alert>}
@@ -126,6 +154,16 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
                     variant="outlined"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                />
+                <TextField
+                    margin="dense"
+                    label="Event Type"
+                    required
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
                 />
                 <TextField
                     margin="dense"
@@ -158,7 +196,7 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
                     <Select
                         value={location}
                         label="Location"
-                        onChange={(e) => setLocation(e.target.value)}
+                        onChange={(e) => handleLocationChange(e.target.value)}
                     >
                         <MenuItem value="">
                             <em>None</em>
@@ -202,16 +240,6 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
                 )}
                 <TextField
                     margin="dense"
-                    label="Tickets Available"
-                    required
-                    type="number"
-                    fullWidth
-                    variant="outlined"
-                    value={ticketsAvailable}
-                    onChange={(e) => setTicketsAvailable(e.target.value)}
-                />
-                <TextField
-                    margin="dense"
                     label="Price"
                     required
                     type="number"
@@ -220,23 +248,25 @@ const UpdateEvent = ({ open, onClose, eventId }) => {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                 />
-                <TextField
-                    margin="dense"
-                    label="On Sale Percentage"
-                    required
-                    type="number"
-                    fullWidth
-                    variant="outlined"
-                    value={onSale}
-                    onChange={(e) => setOnSale(e.target.value)}
-                />
+                {user.userType !== 'organizer' && (
+                    <TextField
+                        margin="dense"
+                        label="On Sale Percentage"
+                        required
+                        type="number"
+                        fullWidth
+                        variant="outlined"
+                        value={onSale}
+                        onChange={(e) => setOnSale(e.target.value)}
+                    />
+                )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => onClose(false)} color="secondary">
+                <Button onClick={() => handleClose(false)} color="secondary">
                     Cancel
                 </Button>
-                <Button onClick={handleUpdate} color="primary">
-                    Update
+                <Button onClick={handleSave} color="primary">
+                    Save
                 </Button>
             </DialogActions>
         </Dialog>

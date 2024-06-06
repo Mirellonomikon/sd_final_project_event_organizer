@@ -1,99 +1,124 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    TextField,
     Button,
+    TextField,
+    Dialog,
     DialogActions,
+    DialogContent,
+    DialogTitle,
     Select,
     MenuItem,
     FormControl,
     InputLabel,
-    Alert
+    Alert,
 } from '@mui/material';
 import axios from 'axios';
 
 const AddEvent = ({ open, handleClose }) => {
     const [name, setName] = useState('');
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
+    const [eventType, setEventType] = useState('');
+    const [eventDate, setEventDate] = useState('');
+    const [eventTime, setEventTime] = useState('');
     const [location, setLocation] = useState('');
     const [organizer, setOrganizer] = useState('');
+    const [ticketsAvailable, setTicketsAvailable] = useState('');
+    const [price, setPrice] = useState('');
+    const [onSale, setOnSale] = useState('');
     const [locations, setLocations] = useState([]);
     const [organizers, setOrganizers] = useState([]);
     const [error, setError] = useState('');
+
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await axios.get('http://localhost:8081/api/location/all', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setLocations(response.data);
-            } catch (err) {
-                setError(err.response?.data || 'Failed to fetch locations.');
-            }
-        };
+        if (open) {
+            const fetchLocations = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8081/api/location/all', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setLocations(response.data);
+                } catch (err) {
+                    setError(err.response?.data || 'Failed to fetch locations.');
+                }
+            };
 
-        const fetchOrganizers = async () => {
-            try {
-                const response = await axios.get('http://localhost:8081/api/user/role/organizer', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setOrganizers(response.data);
-            } catch (err) {
-                setError(err.response?.data || 'Failed to fetch organizers.');
-            }
-        };
+            const fetchOrganizers = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8081/api/user/role/organizer', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setOrganizers(response.data);
+                } catch (err) {
+                    setError(err.response?.data || 'Failed to fetch organizers.');
+                }
+            };
 
-        fetchLocations();
-        fetchOrganizers();
-    }, [token]);
+            fetchLocations();
+            fetchOrganizers();
+        } else {
+            resetForm();
+        }
+    }, [open, token]);
 
     const resetForm = () => {
         setName('');
-        setDate('');
-        setTime('');
+        setEventType('');
+        setEventDate('');
+        setEventTime('');
         setLocation('');
         setOrganizer('');
+        setTicketsAvailable('');
+        setPrice('');
+        setOnSale('');
         setError('');
     };
 
-    const handleSubmit = async () => {
+    const handleLocationChange = async (locationId) => {
+        setLocation(locationId);
+        if (locationId) {
+            try {
+                const response = await axios.get(`http://localhost:8081/api/location/${locationId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setTicketsAvailable(response.data.capacity);
+            } catch (err) {
+                setError(err.response?.data || 'Failed to fetch location capacity.');
+            }
+        } else {
+            setTicketsAvailable('');
+        }
+    };
+
+    const handleSave = async () => {
         try {
             const eventDTO = {
                 name,
-                date,
-                time,
+                eventType,
+                eventDate,
+                eventTime,
                 location,
-                organizer: user.userType === 'organizer' ? user.id : organizer
+                organizer: user.userType === 'organizer' ? user.id : organizer,
+                ticketsAvailable,
+                price,
+                onSale
             };
 
             await axios.post('http://localhost:8081/api/event/create', eventDTO, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             handleClose(true);
-            resetForm();
         } catch (err) {
-            setError(err.response?.data || 'Failed to create event.');
+            setError(err.response?.data || 'Failed to save event.');
         }
-    };
-
-    const handleDialogClose = (submitSuccessful) => {
-        if (!submitSuccessful) {
-            resetForm();
-        }
-        handleClose(submitSuccessful);
     };
 
     return (
-        <Dialog open={open} onClose={() => handleDialogClose(false)} sx={{ '& .MuiPaper-root': { backgroundColor: '#f1f8e9' } }}>
+        <Dialog open={open} onClose={() => handleClose(false)} sx={{ '& .MuiPaper-root': { backgroundColor: '#f1f8e9' } }}>
             <DialogTitle>Add Event</DialogTitle>
             <DialogContent>
-                {error && <Alert severity="error" style={{ backgroundColor: '#FFF6EA', marginBottom: '5px' }}>{error}</Alert>}
+                {error && <Alert severity="error" style={{ backgroundColor: '#FFF6EA', marginBottom: "5px" }}>{error}</Alert>}
                 <TextField
                     autoFocus
                     margin="dense"
@@ -107,26 +132,36 @@ const AddEvent = ({ open, handleClose }) => {
                 />
                 <TextField
                     margin="dense"
-                    label="Date"
+                    label="Event Type"
+                    required
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
+                />
+                <TextField
+                    margin="dense"
+                    label="Event Date"
                     type="date"
                     required
                     fullWidth
                     variant="outlined"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
                     InputLabelProps={{
                         shrink: true,
                     }}
                 />
                 <TextField
                     margin="dense"
-                    label="Time"
+                    label="Event Time"
                     type="time"
                     required
                     fullWidth
                     variant="outlined"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    value={eventTime}
+                    onChange={(e) => setEventTime(e.target.value)}
                     InputLabelProps={{
                         shrink: true,
                     }}
@@ -136,7 +171,7 @@ const AddEvent = ({ open, handleClose }) => {
                     <Select
                         value={location}
                         label="Location"
-                        onChange={(e) => setLocation(e.target.value)}
+                        onChange={(e) => handleLocationChange(e.target.value)}
                     >
                         <MenuItem value="">
                             <em>None</em>
@@ -178,13 +213,33 @@ const AddEvent = ({ open, handleClose }) => {
                         disabled
                     />
                 )}
+                <TextField
+                    margin="dense"
+                    label="Price"
+                    required
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                />
+                <TextField
+                    margin="dense"
+                    label="On Sale Percentage"
+                    required
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={onSale}
+                    onChange={(e) => setOnSale(e.target.value)}
+                />
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => handleDialogClose(false)} color="secondary">
+                <Button onClick={() => handleClose(false)} color="secondary">
                     Cancel
                 </Button>
-                <Button onClick={handleSubmit} color="primary">
-                    Submit
+                <Button onClick={handleSave} color="primary">
+                    Save
                 </Button>
             </DialogActions>
         </Dialog>

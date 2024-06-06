@@ -106,9 +106,11 @@ const AdminLocations = () => {
         setIsAddFormOpen(true);
     };
 
-    const handleCloseAddForm = () => {
+    const handleCloseAddForm = (submitSuccessful) => {
         setIsAddFormOpen(false);
-        fetchLocations();
+        if (submitSuccessful) {
+            fetchLocations();
+        }
     };
 
     const handleOpenUpdateForm = (locationId) => {
@@ -116,9 +118,11 @@ const AdminLocations = () => {
         setIsUpdateFormOpen(true);
     };
 
-    const handleCloseUpdateForm = () => {
+    const handleCloseUpdateForm = (submitSuccessful) => {
         setIsUpdateFormOpen(false);
-        fetchLocations();
+        if (submitSuccessful) {
+            fetchLocations();
+        }
     };
 
     const handleChangeRowsPerPage = (event) => {
@@ -282,7 +286,7 @@ const AdminLocations = () => {
                     <Typography>Are you sure you want to delete this location?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete} color="primary">
+                    <Button onClick={handleCancelDelete} color="secondary">
                         Cancel
                     </Button>
                     <Button onClick={handleDelete} color="primary">
@@ -297,22 +301,24 @@ const AdminLocations = () => {
                 </Button>
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleOpenAddForm}
-                    >
+                    <Button variant="contained" color="primary" onClick={handleOpenAddForm}>
                         Add Location
                     </Button>
                 </Box>
             </Box>
 
-            <AddLocation open={isAddFormOpen} onClose={handleCloseAddForm} />
-            <UpdateLocation
-                open={isUpdateFormOpen}
-                onClose={handleCloseUpdateForm}
-                locationId={selectedLocationId}
+            <AddLocation
+                open={isAddFormOpen}
+                handleClose={handleCloseAddForm}
             />
+
+            {selectedLocationId && (
+                <UpdateLocation
+                    open={isUpdateFormOpen}
+                    handleClose={handleCloseUpdateForm}
+                    locationId={selectedLocationId}
+                />
+            )}
         </Container>
     );
 };
