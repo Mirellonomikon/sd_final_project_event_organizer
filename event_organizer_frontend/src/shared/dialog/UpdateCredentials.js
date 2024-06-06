@@ -10,10 +10,11 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UpdateCredsForm = ({ open, handleClose, userId }) => {
+const UpdateCredentials = ({ open, handleClose }) => {
     const [userData, setUserData] = useState({ username: '', name: '', email: '', newPassword: '', oldPassword: '' });
     const [error, setError] = useState('');
     const token = localStorage.getItem('token');
+    const userId = JSON.parse(localStorage.getItem('user')).id;
 
     useEffect(() => {
         if (open) {
@@ -32,7 +33,7 @@ const UpdateCredsForm = ({ open, handleClose, userId }) => {
 
             fetchUserDetails();
         }
-    }, [open, userId]);
+    }, [open, userId, token]);
 
     const handleInputChange = (e) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -126,4 +127,4 @@ const UpdateCredsForm = ({ open, handleClose, userId }) => {
     );
 };
 
-export default UpdateCredsForm;
+export default UpdateCredentials;

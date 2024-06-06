@@ -1,10 +1,7 @@
 package org.example.event_organizer_api.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.event_organizer_api.dto.user.UserDTO;
-import org.example.event_organizer_api.dto.user.UserSignInDTO;
-import org.example.event_organizer_api.dto.user.UserSignUpDTO;
-import org.example.event_organizer_api.dto.user.UserUpdateCredentialsDTO;
+import org.example.event_organizer_api.dto.user.*;
 import org.example.event_organizer_api.entity.User;
 import org.example.event_organizer_api.security.JwtUtil;
 import org.example.event_organizer_api.service.UserService;
@@ -33,7 +30,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody UserSignInDTO userSignInDTO) throws Exception {
-        User user = userService.loginUser(userSignInDTO);
+        UserIdDTO user = userService.loginUser(userSignInDTO);
         String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserType());
 
         Map<String, Object> responseBody = new HashMap<>();

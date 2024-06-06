@@ -1,9 +1,6 @@
 package org.example.event_organizer_api.mapper;
 
-import org.example.event_organizer_api.dto.user.UserDTO;
-import org.example.event_organizer_api.dto.user.UserSignUpDTO;
-import org.example.event_organizer_api.dto.user.UserSignInDTO;
-import org.example.event_organizer_api.dto.user.UserUpdateCredentialsDTO;
+import org.example.event_organizer_api.dto.user.*;
 import org.example.event_organizer_api.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +26,9 @@ public class UserMapper implements GenericMapper<User, UserDTO>{
         return modelMapper.map(user, UserDTO.class);
     }
 
+    public UserIdDTO toIdDTO(User user) {
+        return modelMapper.map(user, UserIdDTO.class);
+    }
     public User signUpDtoToEntity(UserSignUpDTO dto) {
         User user = modelMapper.map(dto, User.class);
         user.setUserType(resolveUserType(dto.getUserTypeCode()));

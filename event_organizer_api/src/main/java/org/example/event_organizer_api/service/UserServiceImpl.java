@@ -1,9 +1,6 @@
 package org.example.event_organizer_api.service;
 
-import org.example.event_organizer_api.dto.user.UserDTO;
-import org.example.event_organizer_api.dto.user.UserSignInDTO;
-import org.example.event_organizer_api.dto.user.UserSignUpDTO;
-import org.example.event_organizer_api.dto.user.UserUpdateCredentialsDTO;
+import org.example.event_organizer_api.dto.user.*;
 import org.example.event_organizer_api.entity.Event;
 import org.example.event_organizer_api.entity.User;
 import org.example.event_organizer_api.mapper.UserMapper;
@@ -56,13 +53,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User loginUser(UserSignInDTO userSignInDTO) throws NoSuchElementException, IllegalArgumentException {
+    public UserIdDTO loginUser(UserSignInDTO userSignInDTO) throws NoSuchElementException, IllegalArgumentException {
         User user = userRepository.findByUsername(userSignInDTO.getUsername())
                 .orElseThrow(() -> new NoSuchElementException("User not found."));
         if (!passwordEncoder.matches(userSignInDTO.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid password.");
         }
-        return user;
+
+        return userMapper.toIdDTO(user);
     }
 
     @Override
