@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const AddUserDialog = ({ open, handleClose }) => {
+const AddUser = ({ open, handleClose }) => {
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
@@ -137,4 +137,4 @@ const AddUserDialog = ({ open, handleClose }) => {
     );
 };
 
-export default AddUserDialog;
+export default AddUser;

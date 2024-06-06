@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Container,
     Button,
@@ -45,7 +45,7 @@ const AdminEvents = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:8081/api/event/all', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -56,11 +56,11 @@ const AdminEvents = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchEvents();
-    }, []);
+    }, [fetchEvents]);
 
     const handleDelete = async () => {
         try {
@@ -331,12 +331,17 @@ const AdminEvents = () => {
                 </ClickAwayListener>
             )}
 
-            <Button variant="contained" color="primary" onClick={handleOpenAddForm} sx={{ marginTop: 2 }}>
-                Add Event
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2, marginLeft: 2 }}>
-                Logout
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+
+                <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2, marginLeft: 2 }}>
+                    Logout
+                </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button variant="contained" color="primary" onClick={handleOpenAddForm} sx={{ marginTop: 2 }}>
+                        Add Event
+                    </Button>
+                </Box>
+            </Box>
 
             <Dialog open={deleteConfirmationOpen} onClose={handleCancelDelete}>
                 <DialogTitle>Confirm Delete</DialogTitle>

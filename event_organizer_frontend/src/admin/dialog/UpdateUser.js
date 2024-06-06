@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UpdateUserDialog = ({ open, handleClose, userId }) => {
+const UpdateUser = ({ open, handleClose, userId }) => {
     const [defaultUser, setDefaultUser] = useState(null);
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
@@ -50,7 +50,7 @@ const UpdateUserDialog = ({ open, handleClose, userId }) => {
         } else {
             setError('');
         }
-    }, [open, userId]);
+    }, [open, userId, token]);
 
     const handleUpdate = async () => {
         try {
@@ -165,4 +165,4 @@ const UpdateUserDialog = ({ open, handleClose, userId }) => {
     );
 };
 
-export default UpdateUserDialog;
+export default UpdateUser;

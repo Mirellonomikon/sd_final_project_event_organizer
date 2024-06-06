@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Container,
     Button,
@@ -45,7 +45,7 @@ const AdminLocations = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
-    const fetchLocations = async () => {
+    const fetchLocations = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:8081/api/location/all', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -56,11 +56,11 @@ const AdminLocations = () => {
         } finally {
             setLoading(false);
         }
-    };
+    },  [token]);
 
     useEffect(() => {
         fetchLocations();
-    }, []);
+    }, [fetchLocations]);
 
     const handleDelete = async () => {
         try {

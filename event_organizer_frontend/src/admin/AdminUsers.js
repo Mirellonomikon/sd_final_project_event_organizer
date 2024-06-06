@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Container,
     Button,
@@ -20,11 +20,10 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Popover,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Edit, Delete, Notifications } from '@mui/icons-material';
+import { Edit, Delete } from '@mui/icons-material';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import AddUser from './dialog/AddUser';
 import UpdateUser from './dialog/UpdateUser';
@@ -42,13 +41,11 @@ const AdminUsers = () => {
     const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-    const [pendingUsers, setPendingUsers] = useState([]);
-    const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:8081/api/user/all', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -59,11 +56,11 @@ const AdminUsers = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     const handleDelete = async () => {
         try {
@@ -109,9 +106,11 @@ const AdminUsers = () => {
         setIsAddFormOpen(true);
     };
 
-    const handleCloseAddForm = () => {
+    const handleCloseAddForm = (submitSuccessful) => {
         setIsAddFormOpen(false);
-        fetchUsers();
+        if (submitSuccessful) {
+            fetchUsers();
+        }
     };
 
     const handleOpenUpdateForm = (userId) => {
@@ -119,9 +118,11 @@ const AdminUsers = () => {
         setIsUpdateFormOpen(true);
     };
 
-    const handleCloseUpdateForm = () => {
+    const handleCloseUpdateForm = (submitSuccessful) => {
         setIsUpdateFormOpen(false);
-        fetchUsers();
+        if (submitSuccessful) {
+            fetchUsers();
+        }
     };
 
     const handleChangeRowsPerPage = (event) => {
@@ -132,7 +133,6 @@ const AdminUsers = () => {
     const handleTableClickAway = () => {
         setSelectedUser(null);
     };
-
 
     const sortedUsers = users.sort((a, b) => {
         const aField = a[sortField] || '';
@@ -199,14 +199,6 @@ const AdminUsers = () => {
                                     disabled={!isEditDeleteEnabled}
                                 >
                                     <Delete />
-                                </IconButton>
-                                <IconButton
-                                    color="inherit"
-                                    onClick={handleNotificationClick}
-                                    disabled={pendingUsers.length === 0}
-                                    sx={{ color: pendingUsers.length > 0 ? '#E4D00A' : 'grey' }}
-                                >
-                                    <Notifications />
                                 </IconButton>
                             </Box>
                         </Toolbar>
@@ -304,7 +296,7 @@ const AdminUsers = () => {
                     <Typography>Are you sure you want to delete this user?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete} color="primary">
+                    <Button onClick={handleCancelDelete} color="secondary">
                         Cancel
                     </Button>
                     <Button onClick={handleDelete} color="primary">
@@ -313,28 +305,37 @@ const AdminUsers = () => {
                 </DialogActions>
             </Dialog>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-                <Button variant="contained" color="secondary" onClick={handleLogout}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: 2,
+                }}
+            >
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleLogout}
+                >
                     Logout
                 </Button>
-
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleOpenAddForm}
-                    >
-                        Add User
-                    </Button>
-                </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleOpenAddForm}
+                >
+                    Add User
+                </Button>
             </Box>
 
-            <AddUser open={isAddFormOpen} onClose={handleCloseAddForm} />
-            <UpdateUser
-                open={isUpdateFormOpen}
-                onClose={handleCloseUpdateForm}
-                userId={selectedUserId}
-            />
+            {isAddFormOpen && <AddUser open={isAddFormOpen} handleClose={handleCloseAddForm} />}
+            {isUpdateFormOpen && (
+                <UpdateUser
+                    open={isUpdateFormOpen}
+                    handleClose={handleCloseUpdateForm}
+                    userId={selectedUserId}
+                />
+            )}
         </Container>
     );
 };
