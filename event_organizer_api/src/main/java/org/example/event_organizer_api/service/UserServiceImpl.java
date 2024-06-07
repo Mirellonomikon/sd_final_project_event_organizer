@@ -15,6 +15,7 @@ import org.example.event_organizer_api.repository.UserRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -53,14 +54,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserIdDTO loginUser(UserSignInDTO userSignInDTO) throws NoSuchElementException, IllegalArgumentException {
+    public User loginUser(UserSignInDTO userSignInDTO) throws NoSuchElementException, IllegalArgumentException {
         User user = userRepository.findByUsername(userSignInDTO.getUsername())
                 .orElseThrow(() -> new NoSuchElementException("User not found."));
         if (!passwordEncoder.matches(userSignInDTO.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid password.");
         }
 
-        return userMapper.toIdDTO(user);
+        return user;
     }
 
     @Override
@@ -173,5 +174,12 @@ public class UserServiceImpl implements UserService{
         }
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public Set<Event> getUserWishlistEvents(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id " + userId));
+        return user.getWishlistEvents();
     }
 }

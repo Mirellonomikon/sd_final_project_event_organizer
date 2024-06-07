@@ -2,6 +2,7 @@ package org.example.event_organizer_api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.event_organizer_api.dto.user.*;
+import org.example.event_organizer_api.entity.Event;
 import org.example.event_organizer_api.entity.User;
 import org.example.event_organizer_api.security.JwtUtil;
 import org.example.event_organizer_api.service.UserService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -30,7 +32,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody UserSignInDTO userSignInDTO) throws Exception {
-        UserIdDTO user = userService.loginUser(userSignInDTO);
+        User user = userService.loginUser(userSignInDTO);
         String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserType());
 
         Map<String, Object> responseBody = new HashMap<>();
@@ -101,6 +103,13 @@ public class UserController {
     public ResponseEntity<User> removeEventFromWishlist(@RequestParam Integer userId, @RequestParam Integer eventId) {
         User user = userService.removeEventFromWishlist(userId, eventId);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/{userId}/wishlist")
+    @PreAuthorize("hasRole('CLIENT') and #userId == authentication.principal.id")
+    public ResponseEntity<Set<Event>> getUserWishlistEvents(@PathVariable Integer userId) {
+        Set<Event> wishlistEvents = userService.getUserWishlistEvents(userId);
+        return ResponseEntity.ok(wishlistEvents);
     }
 }
 

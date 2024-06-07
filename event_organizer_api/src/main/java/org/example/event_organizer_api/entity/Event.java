@@ -1,5 +1,6 @@
 package org.example.event_organizer_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,5 +57,6 @@ public class Event {
     private Integer onSale;
 
     @ManyToMany(mappedBy = "wishlistEvents")
+    @JsonIgnore
     private Set<User> usersWishlist = new HashSet<>();
 }

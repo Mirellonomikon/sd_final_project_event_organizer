@@ -1,5 +1,6 @@
 package org.example.event_organizer_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,5 +41,6 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
+    @JsonIgnore
     private Set<Event> wishlistEvents = new HashSet<>();
 }

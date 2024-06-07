@@ -47,7 +47,7 @@ const ClientEvents = () => {
             const response = await axios.get('http://localhost:8081/api/event/all', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setEvents(response.data);
+            setEvents(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
             setError(`Failed to fetch events: ${err.response?.data || err.message}`);
         } finally {
@@ -57,10 +57,10 @@ const ClientEvents = () => {
 
     const fetchUserWishlist = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8081/api/user/id?userId=${userId}`, {
+            const response = await axios.get(`http://localhost:8081/api/user/${userId}/wishlist`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setWishlist(response.data.wishlistEvents.map(event => event.id));
+            setWishlist(response.data.map(event => event.id));
         } catch (err) {
             setError(`Failed to fetch wishlist: ${err.response?.data || err.message}`);
         }
@@ -104,8 +104,8 @@ const ClientEvents = () => {
         setIsUpdateCredentialsOpen(false);
     };
 
-    const handleOpenBuyTickets = (eventId) => {
-        setSelectedEventId(eventId);
+    const handleOpenBuyTickets = () => {
+        setSelectedEventId(selectedEvent.id);
         setIsBuyTicketsOpen(true);
     };
 
@@ -169,7 +169,7 @@ const ClientEvents = () => {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => navigate("/tickets")}
+                        onClick={() => navigate("/client-tickets")}
                     >
                         Tickets
                     </Button>
@@ -280,7 +280,7 @@ const ClientEvents = () => {
                                             On Sale
                                         </TableSortLabel>
                                     </TableCell>
-                                    <TableCell>Action</TableCell>
+                                    <TableCell>Wishlist</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -314,17 +314,6 @@ const ClientEvents = () => {
                                                     <FavoriteBorder />
                                                 )}
                                             </IconButton>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleOpenBuyTickets(event.id);
-                                                }}
-                                                disabled={!event.onSale || !event.ticketsAvailable}
-                                            >
-                                                Buy Tickets
-                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -351,27 +340,36 @@ const ClientEvents = () => {
             >
                 <Button
                     variant="contained"
+                    color="secondary"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </Button>
+                {selectedEvent && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleOpenBuyTickets}
+                    >
+                        Buy Tickets
+                    </Button>
+                )}
+                <Button
+                    variant="contained"
                     color="primary"
                     onClick={handleOpenUpdateCredentials}
                 >
                     Update Credentials
                 </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleLogout}
-                >
-                    Logout
-                </Button>
             </Box>
 
             <UpdateCredentials
                 open={isUpdateCredentialsOpen}
-                onClose={handleCloseUpdateCredentials}
+                handleClose={handleCloseUpdateCredentials}
             />
             <BuyTickets
                 open={isBuyTicketsOpen}
-                onClose={handleCloseBuyTickets}
+                handleClose={handleCloseBuyTickets}
                 eventId={selectedEventId}
             />
         </Container>

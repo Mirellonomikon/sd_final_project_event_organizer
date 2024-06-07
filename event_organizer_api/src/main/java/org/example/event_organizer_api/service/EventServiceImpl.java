@@ -155,7 +155,7 @@ public class EventServiceImpl implements EventService {
         Set<User> users = event.getUsersWishlist();
         for (User user : users) {
             String message = String.format("The event '%s' is now on sale! New price: %.2f", event.getName(), event.getPrice());
-            emailService.notifyUser(user.getEmail(), "Event on Sale", message);
+            emailService.notifyUser(user.getEmail(), "Event on Sale for " + user.getName(), message);
         }
     }
 
