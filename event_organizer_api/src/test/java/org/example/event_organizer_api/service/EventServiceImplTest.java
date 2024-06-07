@@ -71,7 +71,8 @@ class EventServiceImplTest {
         event = new Event();
         event.setId(1);
         event.setName("Test Event");
-        event.setOnSale(10);  // Ensure onSale is initialized
+        event.setOnSale(10);
+        event.setPrice(new BigDecimal("50.00"));
 
         user = new User();
         user.setId(1);
