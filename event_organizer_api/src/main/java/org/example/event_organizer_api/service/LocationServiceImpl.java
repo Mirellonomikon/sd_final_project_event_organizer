@@ -12,17 +12,32 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Service implementation for managing locations.
+ */
 @Service
 public class LocationServiceImpl implements LocationService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
 
+    /**
+     * Constructor for LocationServiceImpl.
+     *
+     * @param locationRepository the location repository
+     * @param locationMapper the location mapper
+     */
     @Autowired
     public LocationServiceImpl(LocationRepository locationRepository, LocationMapper locationMapper) {
         this.locationRepository = locationRepository;
         this.locationMapper = locationMapper;
     }
 
+    /**
+     * Adds a new location.
+     *
+     * @param locationDTO the location data transfer object
+     * @return the created location
+     */
     @Override
     public Location addLocation(LocationDTO locationDTO) {
         if (locationDTO.getName() == null || locationDTO.getName().isEmpty() ||
@@ -39,6 +54,13 @@ public class LocationServiceImpl implements LocationService {
         }
     }
 
+    /**
+     * Updates an existing location.
+     *
+     * @param id the location ID
+     * @param locationDTO the location data transfer object
+     * @return the updated location
+     */
     @Override
     public Location updateLocation(Integer id, LocationDTO locationDTO) {
         if (locationDTO.getName() == null || locationDTO.getName().isEmpty() ||
@@ -61,6 +83,11 @@ public class LocationServiceImpl implements LocationService {
         }
     }
 
+    /**
+     * Deletes a location.
+     *
+     * @param id the location ID
+     */
     @Override
     public void deleteLocation(Integer id) {
         Location location = locationRepository.findById(id)
@@ -69,14 +96,24 @@ public class LocationServiceImpl implements LocationService {
         locationRepository.delete(location);
     }
 
+    /**
+     * Retrieves a location by its ID.
+     *
+     * @param id the location ID
+     * @return the location, if found
+     */
     @Override
     public Optional<Location> getLocationById(Integer id) {
         return locationRepository.findById(id);
     }
 
+    /**
+     * Retrieves all locations.
+     *
+     * @return a list of all locations
+     */
     @Override
     public List<Location> getAllLocations() {
         return locationRepository.findAll();
     }
 }
-

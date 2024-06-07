@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Service implementation for managing tickets.
+ */
 @Service
 public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
@@ -25,6 +28,14 @@ public class TicketServiceImpl implements TicketService {
     private final EventRepository eventRepository;
     private final TicketMapper ticketMapper;
 
+    /**
+     * Constructor for TicketServiceImpl.
+     *
+     * @param ticketRepository the ticket repository
+     * @param userRepository the user repository
+     * @param eventRepository the event repository
+     * @param ticketMapper the ticket mapper
+     */
     @Autowired
     public TicketServiceImpl(TicketRepository ticketRepository, UserRepository userRepository, EventRepository eventRepository, TicketMapper ticketMapper) {
         this.ticketRepository = ticketRepository;
@@ -33,6 +44,13 @@ public class TicketServiceImpl implements TicketService {
         this.ticketMapper = ticketMapper;
     }
 
+    /**
+     * Adds tickets for a given event.
+     *
+     * @param ticketDTO the ticket data transfer object
+     * @param quantity the number of tickets to add
+     * @return the list of created tickets
+     */
     @Override
     public List<Ticket> addTickets(TicketDTO ticketDTO, int quantity) {
         if (quantity <= 0) {
@@ -62,6 +80,13 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.saveAll(tickets);
     }
 
+    /**
+     * Updates an existing ticket.
+     *
+     * @param id the ticket ID
+     * @param ticketDTO the ticket data transfer object
+     * @return the updated ticket
+     */
     @Override
     public Ticket updateTicket(Integer id, TicketDTO ticketDTO) {
         Ticket ticket = ticketRepository.findById(id)
@@ -80,6 +105,11 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.save(ticket);
     }
 
+    /**
+     * Deletes a ticket.
+     *
+     * @param id the ticket ID
+     */
     @Override
     public void deleteTicket(Integer id) {
         Ticket ticket = ticketRepository.findById(id)
@@ -92,16 +122,33 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.delete(ticket);
     }
 
+    /**
+     * Retrieves a ticket by its ID.
+     *
+     * @param id the ticket ID
+     * @return the ticket, if found
+     */
     @Override
     public Ticket getTicketById(Integer id) {
         return ticketRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Ticket not found with ID: " + id));
     }
 
+    /**
+     * Retrieves all tickets.
+     *
+     * @return a list of all tickets
+     */
     @Override
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
 
+    /**
+     * Retrieves all tickets for a specific user.
+     *
+     * @param id the user ID
+     * @return a list of tickets for the user
+     */
     @Override
     public List<Ticket> getAllTicketsByUser(Integer id) {
         User user = userRepository.findById(id)
@@ -110,6 +157,12 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findByUser(user);
     }
 
+    /**
+     * Retrieves all tickets for a specific event.
+     *
+     * @param id the event ID
+     * @return a list of tickets for the event
+     */
     @Override
     public List<Ticket> getAllTicketsByEvent(Integer id) {
         Event event = eventRepository.findById(id)
@@ -118,10 +171,19 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findByEvent(event);
     }
 
+    /**
+     * Exports a ticket using a specified strategy.
+     *
+     * @param ticket the ticket to export
+     * @param outputStream the output stream to write the exported ticket to
+     * @param strategy the export strategy to use
+     * @throws IOException if an I/O error occurs during export
+     */
     @Override
     public void exportTicket(Ticket ticket, OutputStream outputStream, TicketExportStrategy strategy) throws IOException {
         strategy.export(ticket, outputStream);
     }
 }
+
 
 

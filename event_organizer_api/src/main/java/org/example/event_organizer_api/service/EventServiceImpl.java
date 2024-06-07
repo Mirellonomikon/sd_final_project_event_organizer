@@ -16,6 +16,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+/**
+ * Service implementation for managing events.
+ */
 @Service
 public class EventServiceImpl implements EventService {
 
@@ -26,6 +29,16 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EmailService emailService;
 
+    /**
+     * Constructor for EventServiceImpl.
+     *
+     * @param eventRepository the event repository
+     * @param userRepository the user repository
+     * @param locationRepository the location repository
+     * @param ticketRepository the ticket repository
+     * @param eventMapper the event mapper
+     * @param emailService the email service
+     */
     @Autowired
     public EventServiceImpl(EventRepository eventRepository, UserRepository userRepository, LocationRepository locationRepository, TicketRepository ticketRepository, EventMapper eventMapper, EmailService emailService) {
         this.eventRepository = eventRepository;
@@ -36,6 +49,12 @@ public class EventServiceImpl implements EventService {
         this.emailService = emailService;
     }
 
+    /**
+     * Creates a new event.
+     *
+     * @param eventDTO the event data transfer object
+     * @return the created event
+     */
     @Override
     public Event createEvent(EventDTO eventDTO) {
         Event event = eventMapper.toEntity(eventDTO);
@@ -52,6 +71,13 @@ public class EventServiceImpl implements EventService {
         return eventRepository.save(event);
     }
 
+    /**
+     * Updates an existing event.
+     *
+     * @param id the event ID
+     * @param eventDTO the event data transfer object
+     * @return the updated event
+     */
     @Override
     public Event updateEvent(Integer id, EventDTO eventDTO) {
         Event existingEvent = eventRepository.findById(id)
@@ -82,8 +108,7 @@ public class EventServiceImpl implements EventService {
             BigDecimal originalPrice = existingEvent.getPrice().divide(BigDecimal.valueOf(1 - existingEvent.getOnSale() / 100.0), 2, RoundingMode.HALF_UP);
             BigDecimal newPrice = originalPrice.multiply(BigDecimal.valueOf(1 - eventDTO.getOnSale() / 100.0)).setScale(2, RoundingMode.HALF_UP);
             existingEvent.setPrice(newPrice);
-        }
-        else {
+        } else {
             existingEvent.setPrice(eventDTO.getPrice());
         }
 
@@ -96,6 +121,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.save(existingEvent);
     }
 
+    /**
+     * Deletes an event.
+     *
+     * @param id the event ID
+     */
     @Override
     public void deleteEvent(Integer id) {
         Event event = eventRepository.findById(id)
@@ -103,16 +133,33 @@ public class EventServiceImpl implements EventService {
         eventRepository.delete(event);
     }
 
+    /**
+     * Retrieves an event by its ID.
+     *
+     * @param id the event ID
+     * @return the event, if found
+     */
     @Override
     public Optional<Event> getEventById(Integer id) {
         return eventRepository.findById(id);
     }
 
+    /**
+     * Retrieves all events.
+     *
+     * @return a list of all events
+     */
     @Override
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
 
+    /**
+     * Retrieves events organized by a specific user.
+     *
+     * @param organizerId the organizer ID
+     * @return a list of events organized by the user
+     */
     @Override
     public List<Event> getEventsByOrganizer(Integer organizerId) {
         User organizer = userRepository.findById(organizerId)
@@ -120,6 +167,13 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findByOrganizer(organizer);
     }
 
+    /**
+     * Sets an event on sale.
+     *
+     * @param id the event ID
+     * @param salePercent the sale percentage
+     * @return the updated event
+     */
     @Override
     public Event setEventOnSale(Integer id, Integer salePercent) {
         if (salePercent < 0 || salePercent > 100) {
@@ -142,15 +196,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.save(event);
     }
 
-    public BigDecimal setSalePrice(BigDecimal price, Integer salePercent)
-    {
-        if (salePercent < 0 || salePercent > 100) {
-            throw new IllegalArgumentException("Sale percent must be between 0 and 100");
-        }
-
-        return price.multiply(BigDecimal.valueOf(1 - salePercent / 100.0)).setScale(2, RoundingMode.HALF_UP);
-    }
-
+    /**
+     * Notifies users about the sale of an event.
+     *
+     * @param event the event that is on sale
+     */
     private void notifyUsersOfSale(Event event) {
         Set<User> users = event.getUsersWishlist();
         for (User user : users) {
@@ -159,6 +209,13 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    /**
+     * Checks if a user is the organizer of a specific event.
+     *
+     * @param eventId the event ID
+     * @param userId the user ID
+     * @return true if the user is the organizer of the event, false otherwise
+     */
     public boolean isOrganizer(Integer eventId, Integer userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event not found with ID: " + eventId));
